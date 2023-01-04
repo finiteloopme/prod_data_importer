@@ -24,10 +24,11 @@ class LoadRating(beam.DoFn):
                             names=["item","user", "rating", "timestamp"], 
                             chunksize=self.num_lines)
         file_name = os.path.basename(gcs_filepath)
+        bq_loader = LoadIntoBQ(dataset_id="kunal-scratch.product_ratings_raw",table_id=self.table_name)
         for chunk in reader:
             logging.info("Processing: " + file_name)
-            if self.import_into_bq:
-                beam.ParDo(LoadIntoBQ(dataset_id="kunal-scratch.product_ratings_raw",table_id=self.table_name).writeToBQ(element=chunk))
+            if self.import_into_bq and chunk is not None:
+                bq_loader.writeToBQ(element=chunk)
             # df = chunk
 
         return [gcs_filepath]
