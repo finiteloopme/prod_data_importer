@@ -77,9 +77,8 @@ def run(argv=None):
                 )
             | "Aid parallel processing[csv]" >> beam.Reshuffle()
             # | "DEBUG Rating filename" >> beam.ParDo(lambda file: logging.info(file.path))
-            # | "Load rating file" >> beam.ParDo(lambda file: gcs_read_csv(file.path, import_into_bq))
             | "Load rating file" >> beam.ParDo(LoadRating(num_lines=NUM_LINES_PER_READ, table_name=BQ_RATINGS_TABLE, import_into_bq=import_into_bq))
-            # | "DEBUG processed filename" >> beam.ParDo(logging.info)
+            # # | "DEBUG processed filename" >> beam.ParDo(logging.info)
             | "Mark the rating file as processed" >> beam.ParDo(
                 lambda file: gcsfilesystem.GCSFileSystem(pipeline_options=beam_options)
                     .create(path=file + imported_file_ext).close()
